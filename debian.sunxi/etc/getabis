@@ -1,0 +1,12 @@
+repo_list=(
+	"http://archive.ubuntu.com/ubuntu/pool/main/l/linux-sunxi"
+	"http://ports.ubuntu.com/ubuntu-ports/pool/main/l/linux-sunxi"
+	"http://archive.ubuntu.com/ubuntu/pool/universe/l/linux-sunxi"
+	"http://ports.ubuntu.com/ubuntu-ports/pool/universe/l/linux-sunxi"
+	"http://ppa.launchpad.net/canonical-kernel-team/ppa/ubuntu/pool/main/l/linux-sunxi"
+)
+
+package_prefixes linux-image
+
+getall armhf sunxi
+getall arm64 sunxi
