@@ -1,0 +1,17 @@
+#include "sun8i-h3-orangepi-one.dts"
+
+/ {
+	model = "Xunlong Orange Pi Zero";
+	compatible = "xunlong,orangepi-zero", "allwinner,sun8i-h2plus", "allwinner,sun8i-h3";
+
+	leds {
+		pinctrl-names = "default";
+		pinctrl-0 = <&leds_r_opc>;
+
+		/delete-node/ status_led;
+	};
+};
+
+&pio {
+	/delete-node/ leds_opc;
+};
