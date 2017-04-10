@@ -3,7 +3,6 @@
 #
 # CONFIG_ARM_PSCI is not set
 CONFIG_ETHERNET=y
-# CONFIG_LIB80211 is not set
 CONFIG_LOCALVERSION="-nanopi-neo"
 # CONFIG_MACH_SUN4I is not set
 # CONFIG_MACH_SUN5I is not set
