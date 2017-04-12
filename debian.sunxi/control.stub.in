@@ -43,7 +43,7 @@ Build-Depends-Indep:
  bzip2 <!stage1>,
  sharutils <!stage1>,
  asciidoc <!stage1>,
-Vcs-Git: git://github.com/fuzeman/linux-ubuntu-zesty.git sunxi/4.10
+Vcs-Git: git://github.com/fuzeman/linux-ubuntu-zesty.git fuzeman/sunxi/4.10
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
