@@ -1,1 +1,12 @@
 # arch	version		flavour		installedname			suffix	bdep
+armhf	-		nanopi-neo	-				-	-
+armhf	-		nanopi-neo-air	-				-	-
+armhf	-		orangepi-zero	-				-	-
+armhf	-		sunxi		-				-	-
+armhf	-		sunxi-extra	-				-	-
+
+arm64	-		nanopi-a64	-				-	-
+arm64	-		pine-a64	-				-	-
+arm64	-		sunxi		-				-	-
+arm64	-		sunxi-extra	-				-	-
+
