@@ -1,12 +1,14 @@
-repo_list=(
-	"http://archive.ubuntu.com/ubuntu/pool/main/l/linux-sunxi"
-	"http://ports.ubuntu.com/ubuntu-ports/pool/main/l/linux-sunxi"
-	"http://archive.ubuntu.com/ubuntu/pool/universe/l/linux-sunxi"
-	"http://ports.ubuntu.com/ubuntu-ports/pool/universe/l/linux-sunxi"
-	"http://ppa.launchpad.net/canonical-kernel-team/ppa/ubuntu/pool/main/l/linux-sunxi"
-)
+repo_list=()
 
 package_prefixes linux-image
 
+getall armhf nanopi-neo
+getall armhf nanopi-neo-air
+getall armhf orangepi-zero
 getall armhf sunxi
+getall armhf sunxi-extra
+
+getall arm64 nanopi-a64
+getall arm64 pine-a64
 getall arm64 sunxi
+getall arm64 sunxi-extra
