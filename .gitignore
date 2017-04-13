@@ -56,7 +56,21 @@ Module.symvers
 #
 # Debian directory (make deb-pkg)
 #
-#/debian/
+/debian/build
+/debian/changelog
+/debian/control
+/debian/control.stub
+/debian/copyright
+/debian/files
+/debian/linux-headers-*
+/debian/linux-image-*
+/debian/linux-libc-dev
+/debian/linux-sunxi-headers-*
+/debian/stamps
+/debian/*.log
+
+/debian.sunxi/abi/*/modules.ignore
+/debian.sunxi/control.stub
 
 #
 # tar directory (make tar*-pkg)
