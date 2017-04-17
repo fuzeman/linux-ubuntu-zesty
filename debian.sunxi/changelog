@@ -1,10 +1,18 @@
-linux-sunxi (4.10.0-1000.1) zesty; urgency=low
+linux-sunxi (4.10.0-2000.1) zesty; urgency=low
 
-  [ Dean Gardiner ]
+   [ Dean Gardiner ]
 
-  * Initial release
+  * Built from Ubuntu-raspi2-4.10.0-1004.6
 
--- Dean Gardiner <me@dgardiner.net>
+ -- Dean Gardiner <me@dgardiner.net>  Mon, 17 Apr 2017 17:29:42 +1200
+
+linux-sunxi (4.10.0-2000.0) zesty; urgency=low
+
+   [ Dean Gardiner ]
+
+   * Dummy Entry
+
+ -- Dean Gardiner <me@dgardiner.net>  Tue, 11 Apr 2017 23:57:28 +1200
 
 linux-raspi2 (4.10.0-1004.6) zesty; urgency=low
 
