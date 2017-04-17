@@ -115,8 +115,9 @@ prev_abidir	:= $(CURDIR)/$(DEBIAN)/abi/$(release)-$(prev_revision)/$(arch)
 commonconfdir	:= $(CURDIR)/$(DEBIAN)/config
 archconfdir	:= $(CURDIR)/$(DEBIAN)/config/$(arch)
 sharedconfdir	:= $(CURDIR)/debian.master/config
-builddir	:= $(CURDIR)/debian/build
-stampdir	:= $(CURDIR)/debian/stamps
+builddir	:= $(CURDIR)/debian/build/$(arch)
+stagedir	:= $(CURDIR)/debian/stage/$(arch)
+stampdir	:= $(CURDIR)/debian/stamps/$(arch)
 
 #
 # The binary package name always starts with linux-image-$KVER-$ABI.$UPLOAD_NUM. There

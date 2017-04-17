@@ -41,9 +41,9 @@ do-binary-udebs: debian/control
 	dilist=$$(dh_listpackages -s | grep "\-di$$") && \
 	[ -z "$dilist" ] || \
 	for i in $$dilist; do \
-	  dh_fixperms -p$$i; \
-	  $(lockme) dh_gencontrol -p$$i; \
-	  dh_builddeb -p$$i; \
+	  dh_fixperms -P$(stagedir)/$$i -p$$i; \
+	  $(lockme) dh_gencontrol -P$(stagedir)/$$i -p$$i; \
+	  dh_builddeb -P$(stagedir)/$$i -p$$i; \
 	done
 	
 	# Generate the meta-udeb dependancy lists.
@@ -64,7 +64,7 @@ do-binary-udebs: debian/control
 		END {                                                  			\
 			for (flavour in udebs) {					\
 				package="$(linux_udeb_name)-udebs-" flavour;		\
-				file="debian/" package ".substvars";			\
+				file="$(stagedir)/" package ".substvars";			\
 				print("udeb:Depends=" udebs[flavour]) > file;		\
 				metas="'$(builddir)'/udeb-meta-packages";		\
 				print(package) >metas					\
@@ -72,6 +72,6 @@ do-binary-udebs: debian/control
 		}									\
 	' <$(CURDIR)/debian/control
 	@while read i; do \
-		$(lockme) dh_gencontrol -p$$i; \
-		dh_builddeb -p$$i; \
+		$(lockme) dh_gencontrol -P$(stagedir)/$$i -p$$i; \
+		dh_builddeb -P$(stagedir)/$$i -p$$i; \
 	done <$(builddir)/udeb-meta-packages

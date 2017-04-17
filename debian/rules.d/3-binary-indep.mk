@@ -7,7 +7,7 @@ build-indep:
 # install-headers <- binary-headers
 #
 indep_hdrpkg = $(indep_hdrs_pkg_name)
-indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
+indep_hdrdir = $(stagedir)/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
 install-headers:
 	@echo Debug: $@
 	dh_testdir
@@ -29,7 +29,7 @@ ifeq ($(do_flavour_header_package),true)
 endif
 
 docpkg = $(doc_pkg_name)
-docdir = $(CURDIR)/debian/$(docpkg)/usr/share/doc/$(docpkg)
+docdir = $(stagedir)/$(docpkg)/usr/share/doc/$(docpkg)
 install-doc: install-headers
 	@echo Debug: $@
 ifeq ($(do_doc_package),true)
@@ -55,8 +55,8 @@ endif
 endif
 
 srcpkg = linux-source-$(release)
-srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
-balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
+srcdir = $(stagedir)/$(srcpkg)/usr/src/$(srcpkg)
+balldir = $(stagedir)/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
 install-source: install-doc
 	@echo Debug: $@
 ifeq ($(do_source_package),true)
@@ -70,11 +70,11 @@ ifeq ($(do_source_package_content),true)
 		$(srcdir)/$(srcpkg).tar.bz2
 	rm -rf $(balldir)
 	find './debian' './$(DEBIAN)' \
-		-path './debian/linux-*' -prune -o \
-		-path './debian/$(src_pkg_name)-*' -prune -o \
-		-path './debian/build' -prune -o \
+		-path '$(stagedir)/linux-*' -prune -o \
+		-path '$(stagedir)/$(src_pkg_name)-*' -prune -o \
+		-path '$(builddir)' -prune -o \
 		-path './debian/files' -prune -o \
-		-path './debian/stamps' -prune -o \
+		-path '$(stampdir)' -prune -o \
 		-path './debian/tmp' -prune -o \
 		-print | \
 		cpio -pd --preserve-modification-time $(srcdir)
@@ -83,13 +83,13 @@ endif
 endif
 
 install-tools: toolspkg = $(tools_common_pkg_name)
-install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
-install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
-install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
+install-tools: toolsbin = $(stagedir)/$(toolspkg)/usr/bin
+install-tools: toolssbin = $(stagedir)/$(toolspkg)/usr/sbin
+install-tools: toolsman = $(stagedir)/$(toolspkg)/usr/share/man
 install-tools: cloudpkg = $(cloud_common_pkg_name)
-install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
-install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
-install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
+install-tools: cloudbin = $(stagedir)/$(cloudpkg)/usr/bin
+install-tools: cloudsbin = $(stagedir)/$(cloudpkg)/usr/sbin
+install-tools: cloudman = $(stagedir)/$(cloudpkg)/usr/share/man
 install-tools: install-source $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 
@@ -144,14 +144,14 @@ install-indep: install-tools
 # binary-indep target during builds.
 binary-headers: install-headers
 	@echo Debug: $@
-	dh_installchangelogs -p$(indep_hdrpkg)
-	dh_installdocs -p$(indep_hdrpkg)
-	dh_compress -p$(indep_hdrpkg)
-	dh_fixperms -p$(indep_hdrpkg)
-	dh_installdeb -p$(indep_hdrpkg)
-	$(lockme) dh_gencontrol -p$(indep_hdrpkg)
-	dh_md5sums -p$(indep_hdrpkg)
-	dh_builddeb -p$(indep_hdrpkg)
+	dh_installchangelogs -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_installdocs -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_compress -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_fixperms -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_installdeb -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_md5sums -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
+	dh_builddeb -P$(stagedir)/$(indep_hdrpkg) -p$(indep_hdrpkg)
 
 binary-indep: cloudpkg = $(cloud_common_pkg_name)
 binary-indep: install-indep
@@ -162,14 +162,14 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 ifeq ($(do_tools_common),true)
-	dh_installinit -p$(cloudpkg) -n --name hv-kvp-daemon
-	dh_installinit -p$(cloudpkg) -n --name hv-vss-daemon
-	dh_installinit -p$(cloudpkg) -n --name hv-fcopy-daemon
-	dh_systemd_enable -p$(cloudpkg)
-	dh_installinit -p$(cloudpkg) -o --name hv-kvp-daemon
-	dh_installinit -p$(cloudpkg) -o --name hv-vss-daemon
-	dh_installinit -p$(cloudpkg) -o --name hv-fcopy-daemon
-	dh_systemd_start -p$(cloudpkg)
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -n --name hv-kvp-daemon
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -n --name hv-vss-daemon
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -n --name hv-fcopy-daemon
+	dh_systemd_enable -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -o --name hv-kvp-daemon
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -o --name hv-vss-daemon
+	dh_installinit -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) -o --name hv-fcopy-daemon
+	dh_systemd_start -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
 endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i

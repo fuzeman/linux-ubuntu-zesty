@@ -3,11 +3,11 @@
 
 # Prepare the out-of-tree build directory
 ifeq ($(do_full_source),true)
-build_cd = cd $(builddir)/build-$*; #
+build_cd = cd $(builddir)/$*; #
 build_O  =
 else
 build_cd =
-build_O  = O=$(builddir)/build-$*
+build_O  = O=$(builddir)/$*
 endif
 
 # Typically supplied from the arch makefile, e.g., debian.master/control.d/armhf.mk
@@ -19,17 +19,20 @@ shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
 $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
+	@mkdir -p $(stampdir)
 	@touch $@
 $(stampdir)/stamp-prepare-tree-%: target_flavour = $*
 $(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(archconfdir)/config.common.$(arch) $(archconfdir)/config.flavour.%
 	@echo Debug: $@
-	install -d $(builddir)/build-$*
-	touch $(builddir)/build-$*/ubuntu-build
+	install -d $(builddir)/$*
+	touch $(builddir)/$*/ubuntu-build
 	[ "$(do_full_source)" != 'true' ] && true || \
-		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/build-$*
-	cat $^ | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/build-$*/.config
-	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
+		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/$*
+	cat $^ | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/$*/.config
+	find $(builddir)/$* -name "*.ko" | xargs rm -f
 	$(build_cd) $(kmake) $(build_O) -j1 silentoldconfig prepare scripts
+
+	mkdir -p $(stampdir)
 	touch $@
 
 # Used by developers as a shortcut to prepare a tree for compilation.
@@ -45,24 +48,24 @@ define build_zfs =
 	# It seems to be impossible to tease out the application configuration
 	# from the modules, but at least one can build just the modules.
 	#
-	install -d $(builddir)/build-$*/spl
-	rsync -a --exclude=dkms.conf --delete spl/ $(builddir)/build-$*/spl/
-	cd $(builddir)/build-$*/spl; sh autogen.sh; sh configure $(splopts)
-	$(kmake) -C $(builddir)/build-$*/spl/module $(conc_level)
+	install -d $(builddir)/$*/spl
+	rsync -a --exclude=dkms.conf --delete spl/ $(builddir)/$*/spl/
+	cd $(builddir)/$*/spl; sh autogen.sh; sh configure $(splopts)
+	$(kmake) -C $(builddir)/$*/spl/module $(conc_level)
 
-	install -d $(builddir)/build-$*/zfs
-	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
-	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
-	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
+	install -d $(builddir)/$*/zfs
+	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/$*/zfs/
+	cd $(builddir)/$*/zfs; sh autogen.sh; sh configure $(zfsopts)
+	$(kmake) -C $(builddir)/$*/zfs/module $(conc_level)
 endef
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
-$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
+$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/$*
 $(stampdir)/stamp-build-%: zfsopts  = $(splopts)
-$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/$*/spl
 $(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: enable_zfs = $(call custom_override,do_zfs,$*)
@@ -72,33 +75,34 @@ $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 
 	$(if $(filter true,$(enable_zfs)),$(call build_zfs))
 
+	@mkdir -p $(stampdir)
 	@touch $@
 
 define install_zfs =
-	cd $(builddir)/build-$*/spl/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
-	cd $(builddir)/build-$*/zfs/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+	cd $(builddir)/$*/spl/module; \
+		$(kmake) -C $(builddir)/$* SUBDIRS=`pwd` modules_install $(splopts)
+	cd $(builddir)/$*/zfs/module; \
+		$(kmake) -C $(builddir)/$* SUBDIRS=`pwd` modules_install $(zfsopts)
 endef
 
 # Install the finished build
-install-%: pkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*
-install-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
+install-%: pkgdir = $(stagedir)/$(bin_pkg_name)-$*
+install-%: pkgdir_ex = $(stagedir)/$(extra_pkg_name)-$*
 install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
-install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
-install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
+install-%: dbgpkgdir = $(stagedir)/$(bin_pkg_name)-$*-dbgsym
+install-%: signed = $(stagedir)/$(bin_pkg_name)-signed
+install-%: toolspkgdir = $(stagedir)/$(tools_flavour_pkg_name)-$*
+install-%: cloudpkgdir = $(stagedir)/$(cloud_flavour_pkg_name)-$*
 install-%: basepkg = $(hdrs_pkg_name)
 install-%: indeppkg = $(indep_hdrs_pkg_name)
 install-%: kernfile = $(call custom_override,kernel_file,$*)
 install-%: instfile = $(call custom_override,install_file,$*)
-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
+install-%: hdrdir = $(stagedir)/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
 install-%: MODHASHALGO=sha512
-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
-install-%: build_dir=$(builddir)/build-$*
+install-%: MODSECKEY=$(builddir)/$*/certs/signing_key.pem
+install-%: MODPUBKEY=$(builddir)/$*/certs/signing_key.x509
+install-%: build_dir=$(builddir)/$*
 install-%: enable_zfs = $(call custom_override,do_zfs,$*)
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
@@ -119,11 +123,11 @@ endif
 	# compress_file logic required because not all architectures
 	# generate a zImage automatically out of the box
 ifeq ($(compress_file),)
-	install -m600 -D $(builddir)/build-$*/$(kernfile) \
+	install -m600 -D $(builddir)/$*/$(kernfile) \
 		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 else
 	install -d $(pkgdir)/boot
-	gzip -c9v $(builddir)/build-$*/$(kernfile) > \
+	gzip -c9v $(builddir)/$*/$(kernfile) > \
 		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 	chmod 600 $(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 endif
@@ -139,11 +143,11 @@ ifeq ($(uefi_signed),true)
 	fi
 endif
 
-	install -m644 $(builddir)/build-$*/.config \
+	install -m644 $(builddir)/$*/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
 	install -m644 $(abidir)/$* \
 		$(pkgdir)/boot/abi-$(abi_release)-$*
-	install -m600 $(builddir)/build-$*/System.map \
+	install -m600 $(builddir)/$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
 	if [ "$(filter true,$(do_dtbs))" ]; then \
 		$(build_cd) $(kmake) $(build_O) $(conc_level) dtbs_install \
@@ -155,7 +159,7 @@ endif
 	fi
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
-		-x $(builddir)/build-$*/vmlinux
+		-x $(builddir)/$*/vmlinux
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
@@ -213,7 +217,7 @@ endif
 
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
-		-x $(builddir)/build-$*/vmlinux
+		-x $(builddir)/$*/vmlinux
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 	rm -f $(pkgdir)/lib/modules/$(abi_release)-$*/build
@@ -259,25 +263,25 @@ ifneq ($(skipsub),true)
 	for sub in $($(*)_sub); do					\
 		if ! (TO=$$sub FROM=$* ABI_RELEASE=$(abi_release) $(SHELL)		\
 			$(DROOT)/scripts/sub-flavour); then exit 1; fi;		\
-		/sbin/depmod -b debian/$(bin_pkg_name)-$$sub		\
-			-ea -F debian/$(bin_pkg_name)-$$sub/boot/System.map-$(abi_release)-$* \
+		/sbin/depmod -b $(stagedir)/$(bin_pkg_name)-$$sub		\
+			-ea -F $(stagedir)/$(bin_pkg_name)-$$sub/boot/System.map-$(abi_release)-$* \
 			$(abi_release)-$*;					\
-		install -d debian/$(bin_pkg_name)-$$sub/DEBIAN;	\
+		install -d $(stagedir)/$(bin_pkg_name)-$$sub/DEBIAN;	\
 		for script in postinst postrm preinst prerm; do			\
 			sed -e 's/=V/$(abi_release)-$*/g'			\
 			    -e 's/=K/$(instfile)/g'				\
 			    -e 's/=L/$(loader)/g'				\
 			    -e 's@=B@$(build_arch)@g'				\
 				$(DROOT)/control-scripts/$$script >		\
-				debian/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
-			chmod 755  debian/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
+				$(stagedir)/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
+			chmod 755  $(stagedir)/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
 		done;								\
 	done
 endif
 
 ifneq ($(skipdbg),true)
 	# Debug image is simple
-	install -m644 -D $(builddir)/build-$*/vmlinux \
+	install -m644 -D $(builddir)/$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
 	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
@@ -288,8 +292,8 @@ ifneq ($(skipdbg),true)
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$(pkgdir)/$$module; \
-			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config; then \
-				$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
+			if grep -q CONFIG_MODULE_SIG=y $(builddir)/$*/.config; then \
+				$(builddir)/$*/scripts/sign-file $(MODHASHALGO) \
 					$(MODSECKEY) \
 					$(MODPUBKEY) \
 					$(pkgdir)/$$module; \
@@ -305,7 +309,7 @@ endif
 	# The flavour specific headers image
 	# TODO: Would be nice if we didn't have to dupe the original builddir
 	install -d -m755 $(hdrdir)
-	cat $(builddir)/build-$*/.config | \
+	cat $(builddir)/$*/.config | \
 		sed -e 's/.*CONFIG_DEBUG_INFO=.*/# CONFIG_DEBUG_INFO is not set/g' > \
 		$(hdrdir)/.config
 	chmod 644 $(hdrdir)/.config
@@ -314,39 +318,39 @@ endif
 	rm -f $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
 	# Copy over the compilation version.
-	cp "$(builddir)/build-$*/include/generated/compile.h" \
+	cp "$(builddir)/$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
 	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
 	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
 	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
 ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
-	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
+	cp $(builddir)/$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
 	# Script to symlink everything up
 	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
 	# The build symlink
-	install -d debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*
+	install -d $(stagedir)/$(basepkg)-$*/lib/modules/$(abi_release)-$*
 	$(LN) /usr/src/$(basepkg)-$* \
-		debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*/build
+		$(stagedir)/$(basepkg)-$*/lib/modules/$(abi_release)-$*/build
 	# And finally the symvers
-	install -m644 $(builddir)/build-$*/Module.symvers \
+	install -m644 $(builddir)/$*/Module.symvers \
 		$(hdrdir)/Module.symvers
 
 	# Now the header scripts
-	install -d $(CURDIR)/debian/$(basepkg)-$*/DEBIAN
+	install -d $(stagedir)/$(basepkg)-$*/DEBIAN
 	for script in postinst; do						\
 	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'	\
 		$(DROOT)/control-scripts/headers-$$script > 			\
-			$(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
-	  chmod 755 $(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
+			$(stagedir)/$(basepkg)-$*/DEBIAN/$$script;		\
+	  chmod 755 $(stagedir)/$(basepkg)-$*/DEBIAN/$$script;		\
 	done
 
 	# At the end of the package prep, call the tests
 	DPKG_ARCH="$(arch)" KERN_ARCH="$(build_arch)" FLAVOUR="$*"	\
 	 VERSION="$(abi_release)" REVISION="$(revision)"		\
 	 PREV_REVISION="$(prev_revision)" ABI_NUM="$(abinum)"		\
-	 PREV_ABI_NUM="$(prev_abinum)" BUILD_DIR="$(builddir)/build-$*"	\
+	 PREV_ABI_NUM="$(prev_abinum)" BUILD_DIR="$(builddir)/$*"	\
 	 INSTALL_DIR="$(pkgdir)" SOURCE_DIR="$(CURDIR)"			\
 	 run-parts -v $(DROOT)/tests-build
 
@@ -398,7 +402,7 @@ endif
 endif
 
 headers_tmp := $(CURDIR)/debian/tmp-headers
-headers_dir := $(CURDIR)/debian/linux-libc-dev
+headers_dir := $(stagedir)/linux-libc-dev
 
 hmake := $(MAKE) -C $(CURDIR) O=$(headers_tmp) \
 	KERNELVERSION=$(abi_release) INSTALL_HDR_PATH=$(headers_tmp)/install \
@@ -439,21 +443,21 @@ ifneq ($(DEBIAN),debian.master)
 	echo "non-master branch building linux-libc-dev, aborting"
 	exit 1
 endif
-	dh_installchangelogs -plinux-libc-dev
-	dh_installdocs -plinux-libc-dev
-	dh_compress -plinux-libc-dev
-	dh_fixperms -plinux-libc-dev
-	dh_installdeb -plinux-libc-dev
-	$(lockme) dh_gencontrol -plinux-libc-dev -- $(libc_dev_version)
-	dh_md5sums -plinux-libc-dev
-	dh_builddeb -plinux-libc-dev
+	dh_installchangelogs -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	dh_installdocs -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	dh_compress -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	dh_fixperms -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	dh_installdeb -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	$(lockme) dh_gencontrol -P$(stagedir)/linux-libc-dev -plinux-libc-dev -- $(libc_dev_version)
+	dh_md5sums -P$(stagedir)/linux-libc-dev -plinux-libc-dev
+	dh_builddeb -P$(stagedir)/linux-libc-dev -plinux-libc-dev
 endif
 
 binary-%: pkgimg = $(bin_pkg_name)-$*
 binary-%: pkgimg_ex = $(extra_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
-binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
+binary-%: dbgpkgdir = $(stagedir)/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms)
@@ -463,64 +467,64 @@ binary-%: install-%
 	dh_testdir
 	dh_testroot
 
-	dh_installchangelogs -p$(pkgimg)
-	dh_installdocs -p$(pkgimg)
-	dh_compress -p$(pkgimg)
-	dh_fixperms -p$(pkgimg) -X/boot/
-	dh_installdeb -p$(pkgimg)
-	dh_shlibdeps -p$(pkgimg) $(shlibdeps_opts)
-	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
-	dh_md5sums -p$(pkgimg)
-	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
+	dh_installchangelogs -P$(stagedir)/$(pkgimg) -p$(pkgimg)
+	dh_installdocs -P$(stagedir)/$(pkgimg) -p$(pkgimg)
+	dh_compress -P$(stagedir)/$(pkgimg) -p$(pkgimg)
+	dh_fixperms -P$(stagedir)/$(pkgimg) -p$(pkgimg) -X/boot/
+	dh_installdeb -P$(stagedir)/$(pkgimg) -p$(pkgimg)
+	dh_shlibdeps -P$(stagedir)/$(pkgimg) -p$(pkgimg) $(shlibdeps_opts)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(pkgimg) -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
+	dh_md5sums -P$(stagedir)/$(pkgimg) -p$(pkgimg)
+	dh_builddeb -P$(stagedir)/$(pkgimg) -p$(pkgimg) -- -Zbzip2 -z9
 
 ifeq ($(do_extras_package),true)
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
-		dh_installchangelogs -p$(pkgimg_ex); \
-		dh_installdocs -p$(pkgimg_ex); \
-		dh_compress -p$(pkgimg_ex); \
-		dh_fixperms -p$(pkgimg_ex) -X/boot/; \
-		dh_installdeb -p$(pkgimg_ex); \
-		dh_shlibdeps -p$(pkgimg_ex) $(shlibdeps_opts); \
-		$(lockme) dh_gencontrol -p$(pkgimg_ex); \
-		dh_md5sums -p$(pkgimg_ex); \
-		dh_builddeb -p$(pkgimg_ex) -- -Zbzip2 -z9; \
+		dh_installchangelogs -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_installdocs -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_compress -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_fixperms -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex) -X/boot/; \
+		dh_installdeb -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_shlibdeps -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex) $(shlibdeps_opts); \
+		$(lockme) dh_gencontrol -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_md5sums -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex); \
+		dh_builddeb -P$(stagedir)/$(pkgimg_ex) -p$(pkgimg_ex) -- -Zbzip2 -z9; \
 	fi
 endif
 
-	dh_installchangelogs -p$(pkghdr)
-	dh_installdocs -p$(pkghdr)
-	dh_compress -p$(pkghdr)
-	dh_fixperms -p$(pkghdr)
-	dh_shlibdeps -p$(pkghdr) $(shlibdeps_opts)
-	dh_installdeb -p$(pkghdr)
-	$(lockme) dh_gencontrol -p$(pkghdr)
-	dh_md5sums -p$(pkghdr)
-	dh_builddeb -p$(pkghdr)
+	dh_installchangelogs -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_installdocs -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_compress -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_fixperms -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_shlibdeps -P$(stagedir)/$(pkghdr) -p$(pkghdr) $(shlibdeps_opts)
+	dh_installdeb -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_md5sums -P$(stagedir)/$(pkghdr) -p$(pkghdr)
+	dh_builddeb -P$(stagedir)/$(pkghdr) -p$(pkghdr)
 
 ifneq ($(skipsub),true)
 	@set -e; for sub in $($(*)_sub); do		\
 		pkg=$(bin_pkg_name)-$$sub;	\
-		dh_installchangelogs -p$$pkg;		\
-		dh_installdocs -p$$pkg;			\
-		dh_compress -p$$pkg;			\
-		dh_fixperms -p$$pkg -X/boot/;		\
-		dh_shlibdeps -p$$pkg $(shlibdeps_opts);	\
-		dh_installdeb -p$$pkg;			\
-		$(lockme) dh_gencontrol -p$$pkg;			\
-		dh_md5sums -p$$pkg;			\
-		dh_builddeb -p$$pkg;			\
+		dh_installchangelogs -P$(stagedir)/$$pkg -p$$pkg;		\
+		dh_installdocs -P$(stagedir)/$$pkg -p$$pkg;			\
+		dh_compress -P$(stagedir)/$$pkg -p$$pkg;			\
+		dh_fixperms -P$(stagedir)/$$pkg -p$$pkg -X/boot/;		\
+		dh_shlibdeps -P$(stagedir)/$$pkg -p$$pkg $(shlibdeps_opts);	\
+		dh_installdeb -P$(stagedir)/$$pkg -p$$pkg;			\
+		$(lockme) dh_gencontrol -P$(stagedir)/$$pkg -p$$pkg;			\
+		dh_md5sums -P$(stagedir)/$$pkg -p$$pkg;			\
+		dh_builddeb -P$(stagedir)/$$pkg -p$$pkg;			\
 	done
 endif
 
 ifneq ($(skipdbg),true)
-	dh_installchangelogs -p$(dbgpkg)
-	dh_installdocs -p$(dbgpkg)
-	dh_compress -p$(dbgpkg)
-	dh_fixperms -p$(dbgpkg)
-	dh_installdeb -p$(dbgpkg)
-	$(lockme) dh_gencontrol -p$(dbgpkg)
-	dh_md5sums -p$(dbgpkg)
-	dh_builddeb -p$(dbgpkg)
+	dh_installchangelogs -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_installdocs -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_compress -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_fixperms -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_installdeb -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_md5sums -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
+	dh_builddeb -P$(stagedir)/$(dbgpkg) -p$(dbgpkg)
 
 	# Hokay...here's where we do a little twiddling...
 	# Renaming the debug package prevents it from getting into
@@ -545,31 +549,31 @@ ifneq ($(skipdbg),true)
 endif
 
 ifeq ($(do_linux_tools),true)
-	dh_installchangelogs -p$(pkgtools)
-	dh_installdocs -p$(pkgtools)
-	dh_compress -p$(pkgtools)
-	dh_fixperms -p$(pkgtools)
-	dh_shlibdeps -p$(pkgtools) $(shlibdeps_opts)
-	dh_installdeb -p$(pkgtools)
-	$(lockme) dh_gencontrol -p$(pkgtools)
-	dh_md5sums -p$(pkgtools)
-	dh_builddeb -p$(pkgtools)
+	dh_installchangelogs -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_installdocs -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_compress -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_fixperms -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_shlibdeps -P$(stagedir)/$(pkgtools) -p$(pkgtools) $(shlibdeps_opts)
+	dh_installdeb -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_md5sums -P$(stagedir)/$(pkgtools) -p$(pkgtools)
+	dh_builddeb -P$(stagedir)/$(pkgtools) -p$(pkgtools)
 endif
 ifeq ($(do_cloud_tools),true)
-	dh_installchangelogs -p$(pkgcloud)
-	dh_installdocs -p$(pkgcloud)
-	dh_compress -p$(pkgcloud)
-	dh_fixperms -p$(pkgcloud)
-	dh_shlibdeps -p$(pkgcloud) $(shlibdeps_opts)
-	dh_installdeb -p$(pkgcloud)
-	$(lockme) dh_gencontrol -p$(pkgcloud)
-	dh_md5sums -p$(pkgcloud)
-	dh_builddeb -p$(pkgcloud)
+	dh_installchangelogs -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_installdocs -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_compress -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_fixperms -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_shlibdeps -P$(stagedir)/$(pkgcloud) -p$(pkgcloud) $(shlibdeps_opts)
+	dh_installdeb -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_md5sums -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
+	dh_builddeb -P$(stagedir)/$(pkgcloud) -p$(pkgcloud)
 endif
 
 ifneq ($(full_build),false)
 	# Clean out this flavours build directory.
-	rm -rf $(builddir)/build-$*
+	rm -rf $(builddir)/$*
 	# Clean out the debugging package source directory.
 	rm -rf $(dbgpkgdir)
 endif
@@ -586,6 +590,7 @@ ifeq ($(do_any_tools),true)
 	install -d $(builddirpa)
 	rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) --exclude .git -a ./ $(builddirpa)/
 endif
+	mkdir -p $(stampdir)
 	touch $@
 
 $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch install-arch-headers
@@ -628,10 +633,11 @@ ifeq ($(do_tools_hyperv),true)
 	cd $(builddirpa)/tools/hv && make CFLAGS="-I$(headers_dir)/usr/include -I$(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)" CROSS_COMPILE=$(CROSS_COMPILE) hv_kvp_daemon hv_vss_daemon hv_fcopy_daemon
 endif
 endif
+	@mkdir -p $(stampdir)
 	@touch $@
 
-install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
-install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
+install-perarch: toolspkgdir = $(stagedir)/$(tools_pkg_name)
+install-perarch: cloudpkgdir = $(stagedir)/$(cloud_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
@@ -682,32 +688,32 @@ binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
-	dh_strip -p$(toolspkg)
-	dh_installchangelogs -p$(toolspkg)
-	dh_installdocs -p$(toolspkg)
-	dh_compress -p$(toolspkg)
-	dh_fixperms -p$(toolspkg)
-	dh_shlibdeps -p$(toolspkg) $(shlibdeps_opts)
-	dh_installdeb -p$(toolspkg)
-	$(lockme) dh_gencontrol -p$(toolspkg)
-	dh_md5sums -p$(toolspkg)
-	dh_builddeb -p$(toolspkg)
+	dh_strip -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_installchangelogs -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_installdocs -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_compress -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_fixperms -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_shlibdeps -P$(stagedir)/$(toolspkg) -p$(toolspkg) $(shlibdeps_opts)
+	dh_installdeb -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_md5sums -P$(stagedir)/$(toolspkg) -p$(toolspkg)
+	dh_builddeb -P$(stagedir)/$(toolspkg) -p$(toolspkg)
 endif
 ifeq ($(do_cloud_tools),true)
-	dh_strip -p$(cloudpkg)
-	dh_installchangelogs -p$(cloudpkg)
-	dh_installdocs -p$(cloudpkg)
-	dh_compress -p$(cloudpkg)
-	dh_fixperms -p$(cloudpkg)
-	dh_shlibdeps -p$(cloudpkg) $(shlibdeps_opts)
-	dh_installdeb -p$(cloudpkg)
-	$(lockme) dh_gencontrol -p$(cloudpkg)
-	dh_md5sums -p$(cloudpkg)
-	dh_builddeb -p$(cloudpkg)
+	dh_strip-P$(stagedir)/$(cloudpkg)  -p$(cloudpkg)
+	dh_installchangelogs -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_installdocs -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_compress -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_fixperms -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_shlibdeps -P$(stagedir)/$(cloudpkg) -p$(cloudpkg) $(shlibdeps_opts)
+	dh_installdeb -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	$(lockme) dh_gencontrol -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_md5sums -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
+	dh_builddeb -P$(stagedir)/$(cloudpkg) -p$(cloudpkg)
 endif
 
-binary-debs: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
-binary-debs: signedv = $(CURDIR)/debian/$(bin_pkg_name)-signed/$(release)-$(revision)
+binary-debs: signed = $(stagedir)/$(bin_pkg_name)-signed
+binary-debs: signedv = $(stagedir)/$(bin_pkg_name)-signed/$(release)-$(revision)
 binary-debs: signed_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
@@ -722,15 +728,15 @@ build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-bui
 build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
-ifeq ($(AUTOBUILD),)
-binary-arch-deps-$(do_flavour_image_package) += binary-udebs
-else
-binary-arch-deps-$(do_flavour_image_package) = binary-debs
-endif
-binary-arch-deps-$(do_libc_dev_package) += binary-arch-headers
 ifneq ($(do_common_headers_indep),true)
 binary-arch-deps-$(do_flavour_header_package) += binary-headers
 endif
+ifeq ($(AUTOBUILD),)
+binary-arch-deps-$(do_flavour_image_package) += binary-udebs
+else
+binary-arch-deps-$(do_flavour_image_package) += binary-debs
+endif
+binary-arch-deps-$(do_libc_dev_package) += binary-arch-headers
+
 binary-arch: $(binary-arch-deps-true)
 	@echo Debug: $@
-

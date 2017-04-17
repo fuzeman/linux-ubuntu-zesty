@@ -102,6 +102,7 @@ clean: debian/control
 	# normal build junk
 	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
 	rm -rf $(builddir)
+	rm -rf $(stagedir)
 	rm -f $(stampdir)/stamp-*
 	rm -rf $(DEBIAN)/linux-*
 
