@@ -66,7 +66,9 @@ Module.symvers
 /debian/linux-image-*
 /debian/linux-libc-dev
 /debian/linux-sunxi-headers-*
+/debian/stage
 /debian/stamps
+/debian/tmp-headers
 /debian/*.log
 
 /debian.sunxi/abi/*/modules.ignore
