@@ -36,30 +36,16 @@ arpt_mangle
 arptable_filter
 asix
 at24
-ath3k
 atm
 ax88179_178a
 bcm-keypad
-bcm203x
 bcm2835-gpiomem
 bcma
-bfusb
 binfmt_misc
 blowfish_common
 blowfish_generic
-bluetooth
-bnep
 bonding
-bpa10x
 br_netfilter
-bsd_comp
-btbcm
-btintel
-btmrvl
-btmrvl_sdio
-btrtl
-btsdio
-btusb
 camellia_generic
 cast5_generic
 cast6_generic
@@ -102,7 +88,6 @@ da9062-core
 da9062-regulator
 da9062_wdt
 da9150-core
-davicom
 dccp
 dccp_diag
 dccp_ipv4
@@ -145,7 +130,6 @@ em_text
 em_u32
 esp4
 esp6
-et1011c
 evdev
 extcon-gpio
 extcon-rt8973a
@@ -169,7 +153,6 @@ gpio_keys
 gpio_keys_polled
 gpio_wdt
 gre
-hci_uart
 hdm_dim2
 hdm_i2c
 hdm_usb
@@ -235,7 +218,6 @@ hid-wiimote
 hid-xinmo
 hid-zpff
 hid-zydacron
-hidp
 hso
 hsr
 i2c-arb-gpio-challenge
@@ -248,7 +230,6 @@ i2c-mux-pinctrl
 i2c-mux-reg
 i2c-slave-eeprom
 i2c-stub
-icplus
 ifb
 ila
 ina2xx
@@ -343,7 +324,6 @@ l2tp_eth
 l2tp_ip
 l2tp_ip6
 l2tp_netlink
-l2tp_ppp
 lcd
 led-class-flash
 leds-pwm
@@ -361,7 +341,6 @@ lirc_dev
 lm75
 lrw
 ltc2941-battery-gauge
-lxt
 lz4
 lz4_compress
 lz4hc
@@ -492,19 +471,10 @@ pkcs7_message
 pktgen
 pm8941-wled
 poly1305_generic
-ppp_async
-ppp_deflate
-ppp_generic
-ppp_mppe
-ppp_synctty
-pppoe
-pppox
 pps-gpio
-pptp
 pwm-regulator
 pwm-sun4i
 qmi_wwan
-qsemi
 quota_tree
 quota_v1
 quota_v2
@@ -623,7 +593,6 @@ rc-winfast
 rc-winfast-usbii-deluxe
 rds
 rds_tcp
-rfcomm
 rfkill-gpio
 rfkill-regulator
 rmd128
@@ -672,7 +641,6 @@ sctp_diag
 sdhci
 sdio_uart
 seed
-sermouse
 serpent_generic
 sha3_generic
 sha512_generic
@@ -684,8 +652,6 @@ sit
 sky81452
 sky81452-backlight
 sky81452-regulator
-slhc
-slip
 snd-aloop
 snd-bcd2000
 snd-dummy
@@ -722,7 +688,6 @@ spidev
 ssb
 sun4i-codec
 sun4i-i2s
-sun4i-lradc-keys
 sun4i-ps2
 sun4i-spdif
 tcp_bbr
@@ -768,7 +733,6 @@ usbnet
 usbserial
 ushc
 veth
-vitesse
 vmac
 vxlan
 w1-gpio

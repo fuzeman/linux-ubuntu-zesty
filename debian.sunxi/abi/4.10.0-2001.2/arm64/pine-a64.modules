@@ -16,9 +16,6 @@ act_skbedit
 act_skbmod
 act_vlan
 ads1015
-aes-arm
-aes-arm-bs
-aes-arm-ce
 af_alg
 af_packet_diag
 ah4
@@ -55,7 +52,6 @@ bnep
 bonding
 bpa10x
 br_netfilter
-bsd_comp
 btbcm
 btintel
 btmrvl
@@ -93,11 +89,9 @@ cpufreq-dt
 crc-t10dif
 crc7
 crc8
-crct10dif-arm-ce
 crct10dif_common
 crct10dif_generic
 cryptd
-crypto_simd
 crypto_user
 cryptoloop
 cuse
@@ -107,7 +101,6 @@ da9062-core
 da9062-regulator
 da9062_wdt
 da9150-core
-davicom
 dccp
 dccp_diag
 dccp_ipv4
@@ -117,6 +110,7 @@ dht11
 digicolor-usart
 dsa_core
 dummy
+dwmac-sun8i
 ebt_802_3
 ebt_among
 ebt_arp
@@ -149,7 +143,6 @@ em_text
 em_u32
 esp4
 esp6
-et1011c
 evdev
 extcon-gpio
 extcon-rt8973a
@@ -163,7 +156,6 @@ ftdi_sio
 g_mass_storage
 garp
 generic_bl
-ghash-arm-ce
 governor_passive
 governor_powersave
 governor_userspace
@@ -253,7 +245,6 @@ i2c-mux-pinctrl
 i2c-mux-reg
 i2c-slave-eeprom
 i2c-stub
-icplus
 ifb
 ila
 ina2xx
@@ -348,7 +339,6 @@ l2tp_eth
 l2tp_ip
 l2tp_ip6
 l2tp_netlink
-l2tp_ppp
 lcd
 led-class-flash
 leds-pwm
@@ -366,7 +356,6 @@ lirc_dev
 lm75
 lrw
 ltc2941-battery-gauge
-lxt
 lz4
 lz4_compress
 lz4hc
@@ -378,8 +367,8 @@ matrix-keymap
 matrix_keypad
 mcryptd
 michael_mic
-mii
 mip6
+mmc_spi
 mostcore
 mpls_gso
 mt6311-regulator
@@ -488,7 +477,7 @@ nft_rt
 ntfs
 nvmem_core
 nvmem_sunxi_sid
-nvram
+of_mmc_spi
 parport
 parport_ax88796
 pcbc
@@ -497,20 +486,10 @@ pkcs7_message
 pktgen
 pm8941-wled
 poly1305_generic
-ppp_async
-ppp_deflate
-ppp_generic
-ppp_mppe
-ppp_synctty
-pppoe
-pppox
 pps-gpio
-pptp
 pwm-regulator
 pwm-sun4i
 qmi_wwan
-qoriq-cpufreq
-qsemi
 quota_tree
 quota_v1
 quota_v2
@@ -646,7 +625,6 @@ rt5033-regulator
 rt5033_battery
 rtc-ab-b5ze-s3
 rtc-abx80x
-rtc-cmos
 rtc-da9063
 rtc-ds1307
 rtc-ds1685
@@ -679,15 +657,8 @@ sctp_diag
 sdhci
 sdio_uart
 seed
-sermouse
 serpent_generic
-sha1-arm
-sha1-arm-ce
-sha1-arm-neon
-sha2-arm-ce
-sha256-arm
 sha3_generic
-sha512-arm
 sha512_generic
 sht21
 shtc1
@@ -697,8 +668,6 @@ sit
 sky81452
 sky81452-backlight
 sky81452-regulator
-slhc
-slip
 snd-aloop
 snd-bcd2000
 snd-dummy
@@ -735,11 +704,8 @@ spidev
 ssb
 sun4i-codec
 sun4i-i2s
-sun4i-lradc-keys
 sun4i-ps2
 sun4i-spdif
-sun4i-ss
-sun8i-codec-analog
 tcp_bbr
 tcp_bic
 tcp_cdg
@@ -783,7 +749,6 @@ usbnet
 usbserial
 ushc
 veth
-vitesse
 vmac
 vxlan
 w1-gpio
