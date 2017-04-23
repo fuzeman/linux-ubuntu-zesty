@@ -7915,21 +7915,22 @@ CONFIG_STRIP_ASM_SYMS                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_READABLE_ASM                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_UNUSED_SYMBOLS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PAGE_OWNER                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_DEBUG_FS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_DEBUG_FS                                 policy<{'amd64': 'y', 'arm64': 'n', 'arm64-sunxi': 'y', 'arm64-sunxi-extra': 'y', 'armhf': 'n', 'armhf-sunxi': 'y', 'armhf-sunxi-extra': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HEADERS_CHECK                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_SECTION_MISMATCH                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_FRAME_POINTER                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_DEBUG_FORCE_WEAK_PER_CPU                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
+CONFIG_DEBUG_FS                                 mark<ENFORCED> note<required for kernel debugging, disabled on device-specific micro kernels>
 
 # Menu: Kernel hacking >> Compile-time checks and compiler options >> Compile the kernel with debug info
-CONFIG_DEBUG_INFO                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_DEBUG_INFO                               policy<{'amd64': 'y', 'arm64-sunxi': 'y', 'arm64-sunxi-extra': 'y', 'armhf-sunxi': 'y', 'armhf-sunxi-extra': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_INFO_REDUCED                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_INFO_SPLIT                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_INFO_DWARF4                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
-CONFIG_DEBUG_INFO                               mark<ENFORCED> note<required for debug packages>
+CONFIG_DEBUG_INFO                               mark<ENFORCED> note<required for debug packages, disabled on device-specific micro kernels>
 CONFIG_DEBUG_INFO_SPLIT                         note<LP:1413646 and LP:1413664>
 
 # Menu: Kernel hacking >> CoreSight Tracing Support
@@ -7954,7 +7955,7 @@ CONFIG_IO_DELAY_UDELAY                          policy<{'amd64': 'n', 'i386': 'n
 CONFIG_IO_DELAY_NONE                            policy<{'amd64': 'n', 'i386': 'n'}>
 
 # Menu: Kernel hacking >> Kernel debugging
-CONFIG_DEBUG_KERNEL                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_DEBUG_KERNEL                             policy<{'amd64': 'y', 'arm64': 'n', 'arm64-sunxi': 'y', 'arm64-sunxi-extra': 'y', 'armhf': 'n', 'armhf-sunxi': 'y', 'armhf-sunxi-extra': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_SHIRQ                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SCHED_DEBUG                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SCHEDSTATS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -7972,6 +7973,7 @@ CONFIG_DEBUG_BLOCK_EXT_DEVT                     policy<{'amd64': 'n', 'arm64': '
 CONFIG_LATENCYTOP                               policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_STRICT_USER_COPY_CHECKS            policy<{'amd64': 'n', 'i386': 'n', 's390x': 'n'}>
 #
+CONFIG_DEBUG_KERNEL                             mark<ENFORCED> note<required for kernel debugging, disabled on device-specific micro kernels>
 CONFIG_LATENCYTOP                               note<https://lists.ubuntu.com/archives/kernel-team/2014-July/045726.html>
 
 # Menu: Kernel hacking >> Kernel debugging >> Fault-injection framework

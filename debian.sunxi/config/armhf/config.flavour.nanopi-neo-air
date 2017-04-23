@@ -29,8 +29,12 @@ CONFIG_BT=m
 # CONFIG_CEPH_FS is not set
 # CONFIG_CICADA_PHY is not set
 # CONFIG_DAVICOM_PHY is not set
+# CONFIG_DEBUG_FS is not set
+# CONFIG_DEBUG_KERNEL is not set
+CONFIG_DEBUG_MEMORY_INIT=y
 # CONFIG_DP83848_PHY is not set
 # CONFIG_ETHERNET is not set
+# CONFIG_EXPERT is not set
 # CONFIG_F2FS_FS is not set
 # CONFIG_FB is not set
 # CONFIG_GFS2_FS is not set
