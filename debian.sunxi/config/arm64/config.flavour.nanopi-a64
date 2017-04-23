@@ -16,8 +16,10 @@
 # CONFIG_BATMAN_ADV is not set
 # CONFIG_BCM87XX_PHY is not set
 # CONFIG_BMP280 is not set
+CONFIG_BRCMFMAC=y
 # CONFIG_BRCMFMAC_USB is not set
 # CONFIG_BRCMSMAC is not set
+CONFIG_BRCMUTIL=y
 # CONFIG_BROADCOM_PHY is not set
 # CONFIG_BT is not set
 # CONFIG_BTRFS_FS is not set
@@ -26,6 +28,8 @@
 # CONFIG_CICADA_PHY is not set
 # CONFIG_DAVICOM_PHY is not set
 # CONFIG_DP83848_PHY is not set
+CONFIG_DWMAC_GENERIC=y
+CONFIG_DWMAC_SUNXI=y
 # CONFIG_F2FS_FS is not set
 # CONFIG_FB is not set
 # CONFIG_GFS2_FS is not set
@@ -86,6 +90,7 @@
 # CONFIG_MEDIA_SDR_SUPPORT is not set
 # CONFIG_MICREL_PHY is not set
 # CONFIG_MICROCHIP_PHY is not set
+CONFIG_MII=y
 # CONFIG_MOUSE_PS2 is not set
 # CONFIG_MOUSE_SERIAL is not set
 # CONFIG_NATIONAL_PHY is not set
@@ -227,6 +232,8 @@
 # CONFIG_SMSC_PHY is not set
 # CONFIG_SONY_FF is not set
 # CONFIG_STE10XP is not set
+CONFIG_STMMAC_ETH=y
+CONFIG_STMMAC_PLATFORM=y
 # CONFIG_TERANETICS_PHY is not set
 # CONFIG_THRUSTMASTER_FF is not set
 # CONFIG_TTPCI_EEPROM is not set
